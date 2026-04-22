@@ -9,8 +9,9 @@ export const config = {
     apiKey: process.env.OPENAI_API_KEY || "",
   },
   qdrant: {
-    url: process.env.QDRANT_URL,
-    collection: process.env.QDRANT_COLLECTION,
+    url: process.env.QDRANT_URL || "",
+    collection: process.env.QDRANT_COLLECTION || "",
+    apiKey: process.env.QDRANT_API_KEY || ""
   },
   server: {
     port: process.env.PORT || "3000",
