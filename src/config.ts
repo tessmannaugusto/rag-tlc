@@ -8,6 +8,9 @@ export const config = {
   openai: {
     apiKey: process.env.OPENAI_API_KEY || "",
   },
+  gemini: {
+    apiKey: process.env.GEMINI_API_KEY || "",
+  },
   qdrant: {
     url: process.env.QDRANT_URL || "",
     collectionName: process.env.QDRANT_COLLECTION || "",

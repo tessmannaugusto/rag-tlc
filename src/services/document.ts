@@ -4,6 +4,7 @@ import { v4 as uuidv4 } from "uuid";
 import { embeddings } from "./openai.js";
 import { qdrantClient } from "./qdrant.js";
 import { config } from "../config.js";
+import { geminiEmbeddings } from "./gemini.js";
 
 interface UploadResponse {
   sucess: boolean;
@@ -51,14 +52,15 @@ export async function processDocument(filePath: string, fileName: string): Promi
   }))
 
   //chunk embedding
-  const texts = documentChunksWithMetadata.map(chunks => chunks.text);
-  const vectors = await embeddings.embedDocuments(texts);
+  const texts = documentChunksWithMetadata.map(chunks => chunks.text).filter(text => text && text.trim().length > 0);
+  const vectors = await embeddings.embedDocuments(texts)
+  // const vectors = await geminiEmbeddings.embedDocuments(texts);
 
   //store embeddings in vector db
 
   const data = documentChunksWithMetadata.map((chunk, index) => {
     const vector = vectors[index];
-    if (!vector || Array.isArray(vector)) {
+    if (!vector || !Array.isArray(vector) || vector.length === 0) {
       throw new Error("Invalid vector.")
     }
     return {
@@ -71,11 +73,11 @@ export async function processDocument(filePath: string, fileName: string): Promi
     }
   })
 
-  await qdrantClient.upsert(config.qdrant.collectionName, {
+   await qdrantClient.upsert(config.qdrant.collectionName, {
     points: data,
     wait: true
   })
-
+  
 
   //return document result
   return {
