@@ -5,13 +5,7 @@ import { embeddings } from "./openai.js";
 import { qdrantClient } from "./qdrant.js";
 import { config } from "../config.js";
 import { geminiEmbeddings } from "./gemini.js";
-
-interface UploadResponse {
-  sucess: boolean;
-  documentId: string;
-  chunksCount: number;
-  message?: string;
-}
+import type { UploadResponse } from "../types.js";
 
 const textSplitter = new RecursiveCharacterTextSplitter({
   chunkSize: 1000,

@@ -1,9 +1,7 @@
 // import { config } from './config.js';
 // import express from 'express';
 
-import { initQdrantCollection } from "./services/qdrant.js";
-import { processDocument } from "./services/document.js";
-import path from "node:path"
+import { searchDocuments } from "./services/query.js";
 
 // const app = express();
 // const port = config.server.port;
@@ -18,23 +16,16 @@ async function main(){
   console.log("Starting the application...");
 
   try {
-    console.log("starting qdrant collection...");
-    await initQdrantCollection();
-    const pdfPath = path.resolve("./uploads/NIKE10K2023.pdf");
-    const fileName = "NIKE10K2023.pdf";
-    console.log(`processing doc: ${fileName}`);
+    console.log("searching the documents...");
+    const result = await searchDocuments({
+      question: "qual a receita liquida da nike em 2022?",
+      topK: 3
+    })
 
-    const startTime = Date.now();
-    const result = await processDocument(pdfPath, fileName)
-    const duration = Date.now() - startTime;
-
-    console.log(`Process finished in ${duration} ms`);
-    console.log(`Document id: ${result.documentId}`);
-    console.log(`Number of chunks ${result.chunksCount}`);
+    console.log("Search result:", result)
   } catch (error) {
-    console.error(`Error when processing document. Error ${error}`);
     process.exit(1)
   }
 };
 
-// main();
+main();
