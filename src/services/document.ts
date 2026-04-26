@@ -4,7 +4,7 @@ import { v4 as uuidv4 } from "uuid";
 import { embeddings } from "./openai.js";
 import { qdrantClient } from "./qdrant.js";
 import { config } from "../config.js";
-import { geminiEmbeddings } from "./gemini.js";
+// import { geminiEmbeddings } from "./gemini.js";
 import type { UploadResponse } from "../types.js";
 
 const textSplitter = new RecursiveCharacterTextSplitter({

@@ -1,32 +1,16 @@
-// import { config } from './config.js';
-// import express from 'express';
+import { config } from './config.js';
+import express from 'express';
+import { queryRouter } from './routes/queryRouter.js';
+import { documentRouter } from './routes/documentRouter.js';
 
-import { searchDocuments } from "./services/query.js";
-import { generateRAGResponse } from "./services/rag.js";
+const app = express();
+const port = config.server.port;
 
-// const app = express();
-// const port = config.server.port;
+app.use(express.json())
+app.get('/', (_, res) => res.send("RAG TLC is running!"));
+app.use('/query', queryRouter);
+app.use('/documents', documentRouter);
 
-// app.get('/', (_, res) => res.send("RAG TLC is running!"));
-
-// app.listen(port, () => {
-//   console.log(`Server is running at http://localhost:${port}`)
-// });
-
-async function main(){
-  console.log("Starting the application...");
-
-  try {
-    console.log("searching the documents...");
-    const result = await generateRAGResponse({
-      question: "Which were the products Nike sold the most in 2023?",
-      topK: 3
-    })
-
-    console.log("Search result:", result)
-  } catch (error) {
-    process.exit(1)
-  }
-};
-
-main();
+app.listen(port, () => {
+  console.log(`Server is running at http://localhost:${port}`)
+});
