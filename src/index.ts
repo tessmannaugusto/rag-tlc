@@ -2,6 +2,7 @@
 // import express from 'express';
 
 import { searchDocuments } from "./services/query.js";
+import { generateRAGResponse } from "./services/rag.js";
 
 // const app = express();
 // const port = config.server.port;
@@ -17,8 +18,8 @@ async function main(){
 
   try {
     console.log("searching the documents...");
-    const result = await searchDocuments({
-      question: "qual a receita liquida da nike em 2022?",
+    const result = await generateRAGResponse({
+      question: "Which were the products Nike sold the most in 2023?",
       topK: 3
     })
 

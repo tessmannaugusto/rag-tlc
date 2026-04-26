@@ -27,3 +27,16 @@ export interface UploadResponse {
   chunksCount: number;
   message?: string;
 }
+
+interface Source {
+  fileName: string;
+  page?: number | undefined;
+  score?: number;
+}
+
+export interface RagResponse {
+  question: string;
+  answer: string;
+  sources?: Source[];
+  tokensUsed?: number;
+}
