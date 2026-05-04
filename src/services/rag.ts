@@ -2,6 +2,7 @@ import { llm } from "./openai.js";
 import { searchDocuments } from "./query.js";
 import { ChatPromptTemplate } from "@langchain/core/prompts";
 import { StringOutputParser } from "@langchain/core/output_parsers";
+import type { Response } from 'express'
 import type { QueryRequest, RagResponse } from "../types.js";
 
 const PROMPT_TEMPLATE = ChatPromptTemplate.fromMessages([
@@ -54,4 +55,38 @@ export async function generateRAGResponse({ question, topK = 3 }: QueryRequest):
     answer,
     sources,
   }
+}
+
+export async function generateRAGStreamingResponse({ question, topK = 3, res }: QueryRequest & { res: Response }): Promise<void> {
+  const searchResults = await searchDocuments({ question, topK });
+
+  if (searchResults.answers.length === 0) {
+    res.write(`data: ${JSON.stringify({ answer: "Sorry, I wasnt able to find relevant information about your question." })}\n\n`);
+    res.write('data: [DONE]');
+    res.end();
+    return;
+  }
+
+  const sources = searchResults.answers.map((item, index) => ({
+    fileName: item.metadata.fileName,
+    page: item.metadata.page,
+    score: item.score
+  }))
+
+  res.write(`data: ${JSON.stringify({ type: "sources", content: sources })}\n\n`);
+
+  const ragContext = searchResults.answers.map((item, index) => `[${index + 1}]: ${item.text}`).join('\n\n')
+
+  const chains = PROMPT_TEMPLATE.pipe(llm).pipe(new StringOutputParser());
+
+  const stream = await chains.stream({
+    ragContext,
+    question
+  });
+
+  for await (const chunk of stream) {
+    res.write(`data: ${JSON.stringify({ type: "token", content: chunk })} \n\n`)
+  }
+  res.write('data: [DONE]');
+  res.end();
 }
