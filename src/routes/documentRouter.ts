@@ -2,16 +2,14 @@ import { Router } from "express";
 import { uploadMiddleware } from "../middlewares/upload.js";
 import { processDocument } from "../services/document.js";
 import fs from "node:fs/promises"
+import { validate } from "../middlewares/validationMiddleware.js";
+import { documentSchema } from "../schemas/documentSchema.js";
 
 export const documentRouter = Router();
 
-documentRouter.post('/upload', uploadMiddleware.single("file"), async (req, res) => {
+documentRouter.post('/upload', uploadMiddleware.single("file"), validate(documentSchema), async (req, res) => {
   try {
-    const file = req.file;
-    if (!file) {
-      return res.status(400).json({ error: "No file found." })
-    }
-
+    const file = req.file!;
     const result = await processDocument(file.path, file.originalname);
     await fs.unlink(file.path);
     res.json(result);
